@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<%- include("../includes/head.ejs")%>
+<%- include('../admin/header-admin.ejs') %>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Quản lý đơn hàng</h3>
+        <div>
+            <a href="/adminTin/revenue-stats" class="btn btn-info mr-2">
+                <i class="fas fa-chart-line"></i> Thống kê doanh thu
+            </a>
+            <a href="/adminTin/managerorder/export" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Xuất Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Thống kê -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng doanh thu</h5>
+                    <p class="card-text"><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue) %></p>
+                </div>
+            </div>
+        </div>
+        <% const statusColors = {
+            'pending': 'warning',
+            'processing': 'info',
+            'shipped': 'primary',
+            'delivered': 'success',
+            'cancelled': 'danger'
+        } %>
+        <% Object.entries(statusStats).forEach(([status, count]) => { %>
+            <div class="col-md-2">
+                <div class="card bg-<%= statusColors[status] %> text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= status.charAt(0).toUpperCase() + status.slice(1) %></h5>
+                        <p class="card-text"><%= count %> đơn</p>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <!-- Form lọc -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST" action="/adminTin/managerorder" class="row">
+                <div class="col-md-3">
+                    <label>Năm:</label>
+                    <select name="year" class="form-control">
+                        <% [2024, 2023, 2022, 2021].forEach(year => { %>
+                            <option value="<%= year %>" <%= selectedYear == year ? 'selected' : '' %>><%= year %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Trạng thái:</label>
+                    <select name="status" class="form-control">
+                        <option value="">Tất cả</option>
+                        <% ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].forEach(status => { %>
+                            <option value="<%= status %>"><%= status.charAt(0).toUpperCase() + status.slice(1) %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>Tìm kiếm:</label>
+                    <input type="text" name="search" class="form-control" placeholder="Tên khách hàng, số điện thoại...">
+                </div>
+                <div class="col-md-2">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary d-block w-100">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng đơn hàng -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th class="text-right">Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%= order.productNewOrder._id %></td>
+                        <td>
+                            <%= order.productNewOrder.fullname %><br>
+                            <small class="text-muted">
+                                <%= order.productNewOrder.mobile %><br>
+                                <%= order.productNewOrder.address %>
+                            </small>
+                        </td>
+                        <td><%= order.productNewOrder.createdOrder %></td>
+                        <td class="text-right">
+                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.productNewOrder.totalAmount) %>
+                        </td>
+                        <td>
+                            <form action="/adminTin/managerorder/status" method="POST" 
+                                  class="status-form" data-order-id="<%= order.productNewOrder._id %>">
+                                <input type="hidden" name="orderId" value="<%= order.productNewOrder._id %>">
+                                <select name="status" class="form-control form-control-sm status-select">
+                                    <% ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].forEach(status => { %>
+                                        <option value="<%= status %>" 
+                                                <%= order.productNewOrder.status === status ? 'selected' : '' %>
+                                                class="text-<%= statusColors[status] %>">
+                                            <%= status.charAt(0).toUpperCase() + status.slice(1) %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/adminTin/managerorder/<%= order.productNewOrder._id %>" 
+                                   class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-warning notify-btn"
+                                        data-order-id="<%= order.productNewOrder._id %>">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Cập nhật trạng thái tự động khi thay đổi
+document.querySelectorAll('.status-select').forEach(select => {
+    select.addEventListener('change', function() {
+        this.closest('form').submit();
+    });
+});
+
+// Gửi email thông báo
+document.querySelectorAll('.notify-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const orderId = this.dataset.orderId;
+        try {
+            const response = await fetch(`/adminTin/managerorder/${orderId}/notify`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Đã gửi email thông báo thành công!');
+            } else {
+                alert('Có lỗi xảy ra khi gửi email!');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            alert('Có lỗi xảy ra khi gửi email!');
+        }
+    });
+});
+</script>
+
+<%- include('../includes/end.ejs') %>

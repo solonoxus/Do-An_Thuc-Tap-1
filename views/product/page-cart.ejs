@@ -1,0 +1,657 @@
+<%- include('../includes/head.ejs') %>
+
+<style>
+    :root {
+        --primary-color: #4a69bd;
+        --secondary-color: #6a89cc;
+        --text-color: #2f3542;
+        --background-color: #f1f2f6;
+        --white: #ffffff;
+        --transition-speed: 0.3s;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+    }
+
+    .table-shopping-cart {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 15px;
+        background: var(--white);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-shopping-cart th {
+        background-color: var(--primary-color);
+        color: var(--white);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .table_row {
+        transition: all var(--transition-speed) ease;
+        background-color: var(--white);
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .table_row:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-checkbox {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: var(--primary-color);
+        margin: 10px;
+        transition: transform var(--transition-speed);
+    }
+
+    .product-checkbox:checked {
+        transform: scale(1.1);
+    }
+
+    .product-quantity-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--background-color);
+        border-radius: 25px;
+        padding: 5px;
+        gap: 10px;
+    }
+
+    .quantity-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: none;
+        background-color: var(--secondary-color);
+        color: var(--white);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition-speed);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .quantity-btn:hover {
+        background-color: var(--primary-color);
+        transform: scale(1.1);
+    }
+
+    .num-product {
+        width: 60px;
+        text-align: center;
+        border: 1px solid var(--background-color);
+        border-radius: 4px;
+        padding: 8px;
+        font-size: 16px;
+        transition: border-color var(--transition-speed);
+        background-color: var(--white);
+    }
+
+    .num-product:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(74, 105, 189, 0.2);
+    }
+
+    .checkout-section {
+        background-color: var(--white);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        transition: all var(--transition-speed);
+    }
+
+    .checkout-section.active {
+        transform: scale(1.02);
+    }
+
+    .total-amount {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .selected-items-count {
+        color: var(--secondary-color);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .stock-warning {
+        color: #ff6b6b;
+        font-size: 0.8em;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    .empty-cart-message {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        padding: 40px;
+        text-align: center;
+        border-radius: 15px;
+        font-size: 1.2em;
+        opacity: 0.8;
+    }
+
+    #checkout-button {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+        border-radius: 30px;
+        padding: 15px 30px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: all var(--transition-speed);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #checkout-button:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .payment-method-section {
+        margin-top: 20px;
+    }
+
+    .payment-method-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .payment-method-label {
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .payment-method-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .payment-method-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .payment-method-input {
+        display: none;
+    }
+
+    .payment-method-option-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid var(--background-color);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color var(--transition-speed);
+    }
+
+    .payment-method-option-label:hover {
+        background-color: var(--background-color);
+    }
+
+    .payment-method-icon {
+        font-size: 24px;
+        margin-right: 10px;
+    }
+
+    .payment-method-text {
+        font-size: 16px;
+    }
+
+    .payment-method-input:checked + .payment-method-option-label {
+        background-color: var(--primary-color);
+        color: var(--white);
+    }
+
+    #paymentMethod {
+        height: 50px; /* Increase height */
+        font-size: 16px; /* Increase font size */
+        padding: 10px; /* Add more padding */
+    }
+
+    @media (max-width: 768px) {
+        .table-shopping-cart {
+            font-size: 0.9em;
+        }
+
+        .product-quantity-controls {
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .checkout-section {
+            padding: 15px;
+        }
+    }
+</style>
+
+<body class="animsition">
+	
+	<%- include('../includes/header.ejs') %>
+	<%- include('../includes/cart-r-side.ejs') %>	
+	<% if (errorMessage && error == 'true') { %>
+		<div class="checkout-message user-message--error m-b-20"><%= errorMessage %></div>
+	<% } %>
+	<% if(errorMessage && error == 'false'){ %>
+		<div class="checkout-message checkout-message--success m-b-20"><%= errorMessage %></div>
+	<% } %>
+	<!-- Shoping Cart -->
+	<div class="bg0 p-t-75 p-b-85">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
+					<div class="m-l-25 m-r--38 m-lr-0-xl">
+						<form class="wrap-table-shopping-cart" action="/update-cart" method="POST">
+							<table class="table-shopping-cart">
+								<tr class="table_head">
+									<th></th>
+									<th class="column-1">Product</th>
+									<th class="column-2"></th>
+									<th class="column-3">Price</th>
+									<th class="column-4">Quantity</th>
+									<th class="column-5">Total</th>
+								</tr>
+
+								<% if (products && products.length > 0) { %>
+									<% products.forEach(function(product) { %>
+										<tr class="table_row">
+											<td class="checkbox-column">
+												<input type="checkbox" class="product-checkbox" 
+													value="<%= product.productId._id %>"
+													data-price="<%= product.productId.price %>"
+													data-max-quantity="<%= product.productId.quantity %>">
+											</td>
+											<td class="column-1">
+												<div class="how-itemcart1">
+													<img src="<%= product.productId.imagePath %>" alt="IMG">
+												</div>
+											</td>
+											<td class="column-2"><%= product.productId.productname %></td>
+											<td class="column-3">
+												$<span class="num-price"><%= product.productId.price %></span>
+											</td>
+											<td class="column-4">
+												<div class="product-quantity-controls">
+													<button type="button" class="quantity-btn btn-num-product-down">
+														<i class="fs-16 zmdi zmdi-minus"></i>
+													</button>
+													<input class="num-product" type="number" name="quantity" 
+														value="<%= product.quantity %>"
+														data-max-quantity="<%= product.productId.stockQuantity %>"
+														min="1">
+													<button type="button" class="quantity-btn btn-num-product-up">
+														<i class="fs-16 zmdi zmdi-plus"></i>
+													</button>
+													<input type="hidden" name="productId" value="<%= product.productId._id %>">
+												</div>
+												<% if (product.productId.stockQuantity < 5) { %>
+													<div class="stock-warning">Only <%= product.productId.stockQuantity %> left in stock</div>
+												<% } %>
+											</td>
+											<td class="column-5">
+												$<span class="total-prod"><%= (product.productId.price * product.quantity).toFixed(2) %></span>
+											</td>
+										</tr>
+									<% }); %>
+								<% } else { %>
+									<tr>
+										<td colspan="6" class="text-center p-4">
+											<div class="empty-cart-message">Your cart is empty</div>
+										</td>
+									</tr>
+								<% } %>
+
+							</table>
+							<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
+								<button type="submit" class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
+									Update Cart
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50 checkout-section">
+					<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-lr-0-xl p-lr-15-sm">
+						<h4 class="mtext-109 cl2 p-b-30">
+							Cart Totals
+						</h4>
+
+						<div class="selected-items-count p-b-10"></div>
+
+						<div class="flex-w flex-t bor12 p-b-13">
+							<div class="size-208">
+								<span class="stext-110 cl2">
+									Subtotal:
+								</span>
+							</div>
+
+							<div class="size-209">
+								<span class="mtext-110 cl2 cart-total-price total-amount">
+									$0.00
+								</span>
+							</div>
+						</div>
+
+						<div class="flex-w flex-t bor12 p-t-15 p-b-30">
+							<div class="size-208 w-full-ssm">
+								<span class="stext-110 cl2">
+									Shipping:
+								</span>
+							</div>
+
+							<div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
+								<p class="stext-111 cl6 p-t-2">
+									Free Shipping
+								</p>
+							</div>
+						</div>
+
+						<form action="/cart/checkout" method="POST" id="checkout-form">
+							<div class="flex-w flex-t p-t-27 p-b-33">
+								<div class="size-208">
+									<span class="mtext-101 cl2">
+										Total:
+									</span>
+								</div>
+
+								<div class="size-209 p-t-1">
+									<span class="mtext-110 cl2 cart-total-price total-amount">
+										$0.00
+									</span>
+								</div>
+							</div>
+
+							<input type="hidden" name="selectedProducts" id="selected-products">
+							
+							<div class="flex-w flex-t bor12 p-t-15 p-b-30">
+								<div class="size-208 w-full-ssm">
+									<span class="stext-110 cl2">
+										Shipping Details:
+									</span>
+								</div>
+
+								<div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
+									<div class="p-t-15">
+										<div class="bor8 bg0 m-b-12">
+											<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="fullname" placeholder="Full Name" required>
+										</div>
+
+										<div class="bor8 bg0 m-b-12">
+											<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="mobilenumber" placeholder="Phone Number" required>
+										</div>
+
+										<div class="bor8 bg0 m-b-12">
+											<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="address" placeholder="Address" required>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="payment-method-section">
+								<div class="form-group">
+									<label>Phương thức thanh toán:</label>
+									<select name="paymentMethod" id="paymentMethod" class="form-control">
+										<option value="cod">Thanh toán khi nhận hàng (COD)</option>
+										<option value="vnpay">Thanh toán qua VNPay</option>
+									</select>
+								</div>
+							</div>
+
+							<button type="submit" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer" id="checkout-button">
+								Proceed to Checkout
+							</button>
+						</form>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+		
+	<%- include('../includes/footer.ejs') %>
+
+	<!-- Back to top -->
+	<div class="btn-back-to-top" id="myBtn">
+			<span class="symbol-btn-back-to-top">
+				<i class="zmdi zmdi-chevron-up"></i>
+			</span>
+	</div>
+
+	<!-- Include cart.js -->
+	<script src="/js/cart.js"></script>
+
+	<%- include('../includes/modal.ejs') %>
+<%- include('../includes/end.ejs') %>
+<script>
+	$(document).ready(function(){
+		// Hàm tính tổng tiền các sản phẩm được chọn
+		function calculateSelectedTotal() {
+			let total = 0;
+			$('.product-checkbox:checked').each(function() {
+				const price = parseFloat($(this).data('price')) || 0;
+				const quantity = parseInt($(this).closest('tr').find('.num-product').val()) || 0;
+				total += price * quantity;
+			});
+			return total;
+		}
+
+		// Cập nhật tổng tiền và hiển thị
+		function updateTotalDisplay() {
+			const total = calculateSelectedTotal();
+			$('.cart-total-price').text('$' + total.toFixed(2));
+			
+			// Cập nhật danh sách sản phẩm được chọn
+			const selectedProducts = [];
+			$('.product-checkbox:checked').each(function() {
+				const productId = $(this).val(); // Sử dụng val() thay vì data('id')
+				if (productId) {
+					selectedProducts.push(productId);
+				}
+			});
+			$('#selected-products').val(JSON.stringify(selectedProducts));
+
+			// Cập nhật số lượng sản phẩm được chọn
+			const selectedCount = selectedProducts.length;
+			$('.selected-items-count').text(selectedCount + ' sản phẩm được chọn');
+
+			// Hiển thị/ẩn phần thanh toán
+			if(selectedProducts.length > 0) {
+				$('.checkout-section').addClass('active');
+			} else {
+				$('.checkout-section').removeClass('active');
+			}
+		}
+
+		// Hàm cập nhật số lượng sản phẩm
+		function updateQuantity(productId, quantity, maxQuantity) {
+			// Kiểm tra số lượng tồn kho
+			if (quantity > maxQuantity) {
+				alert('Số lượng vượt quá tồn kho! Tối đa: ' + maxQuantity);
+				return false;
+			}
+
+			$.ajax({
+				url: '/updatecart',
+				method: 'POST',
+				data: {
+					productId: productId,
+					productQuantity: quantity
+				},
+				success: function(response) {
+					if (response.success) {
+						// Cập nhật giá tiền của sản phẩm
+						const price = parseFloat($('#price-' + productId).data('price'));
+						const newTotal = price * quantity;
+						$('#total-' + productId).text('$' + newTotal.toFixed(2));
+						
+						// Cập nhật tổng tiền
+						updateTotalDisplay();
+					} else {
+						window.location.reload();
+					}
+				},
+			
+			});
+		}
+
+		// Xử lý khi thay đổi checkbox
+		$('.product-checkbox').change(function() {
+			updateTotalDisplay();
+		});
+
+		// Xử lý khi nhập trực tiếp số lượng
+		$('.num-product').change(function() {
+			const val = Math.max(1, parseInt($(this).val()) || 1);
+			const maxQuantity = parseInt($(this).data('max-quantity')) || 0;
+			if (maxQuantity > 0 && val > maxQuantity) {
+				$(this).val(maxQuantity);
+			} else {
+				$(this).val(val);
+			}
+			updateTotalDisplay();
+			
+			// Cập nhật tổng tiền của sản phẩm
+			const row = $(this).closest('tr');
+			const price = parseFloat(row.find('.num-price').text().replace('$', '')) || 0;
+			row.find('.total-prod').text('$' + (price * val).toFixed(2));
+		});
+
+		// Xử lý khi thay đổi số lượng
+		$('.btn-num-product-up, .btn-num-product-down').off('click').on('click', function() {
+			const input = $(this).siblings('.num-product');
+			let newVal;
+			if ($(this).hasClass('btn-num-product-up')) {
+				newVal = parseInt(input.val()) + 1;
+				const maxQuantity = parseInt(input.data('max-quantity')) || 0;
+				if (maxQuantity > 0 && newVal > maxQuantity) {
+					newVal = maxQuantity;
+				}
+			} else {
+				newVal = Math.max(1, parseInt(input.val()) - 1);
+			}
+			input.val(newVal);
+			
+			// Gọi AJAX để cập nhật số lượng
+			const productId = input.siblings('input[name="productId"]').val();
+			updateQuantity(productId, newVal, parseInt(input.data('max-quantity')));
+			
+			// Cập nhật tổng tiền của sản phẩm
+			const row = $(this).closest('tr');
+			const price = parseFloat(row.find('.num-price').text().replace('$', '')) || 0;
+			row.find('.total-prod').text('$' + (price * newVal).toFixed(2));
+		});
+
+		// Xử lý form checkout
+		let isSubmitting = false;
+		$('#checkout-form').on('submit', async function(e) {
+			e.preventDefault();
+			
+			if (isSubmitting) {
+				return;
+			}
+			
+			const selectedProducts = [];
+			$('.product-checkbox:checked').each(function() {
+				selectedProducts.push($(this).val());
+			});
+			
+			if (selectedProducts.length === 0) {
+				alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán');
+				return;
+			}
+			
+			$('#selected-products').val(JSON.stringify(selectedProducts));
+			
+			// Disable form submission
+			isSubmitting = true;
+			const submitButton = $('#checkout-button');
+			submitButton.prop('disabled', true);
+			submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...');
+			submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Thành Công !');
+			
+			const formData = $(this).serialize();
+			const paymentMethod = $('#paymentMethod').val();
+
+			try {
+				if (paymentMethod === 'vnpay') {
+					// Nếu là thanh toán VNPay, submit form trực tiếp
+					const form = document.createElement('form');
+					form.method = 'POST';
+					form.action = '/create_payment_url';
+
+					// Thêm dữ liệu form vào
+					const formDataObj = new URLSearchParams(formData);
+					for (const [key, value] of formDataObj.entries()) {
+						const input = document.createElement('input');
+						input.type = 'hidden';
+						input.name = key;
+						input.value = value;
+						form.appendChild(input);
+					}
+
+					document.body.appendChild(form);
+					form.submit();
+				} else {
+					// Nếu là COD, xử lý bình thường
+					const response = await $.ajax({
+						url: '/cart/checkout',
+						method: 'POST',
+						data: formData
+					});
+
+					if (response.success) {
+						$('.product-checkbox:checked').closest('tr').remove();
+						calculateSelectedTotal();
+						updateCartCount();
+						
+						// Show success modal instead of alert
+						$('#orderCodeDisplay').text(response.orderCode);
+						$('#successCheckoutModal').modal('show');
+						
+						// Optional: Reload page after a delay
+						setTimeout(() => window.location.reload(), 3000);
+					}
+				}
+			} catch (error) {
+				console.error('Error:', error);
+			} finally {
+				if (paymentMethod !== 'vnpay') {
+					setTimeout(() => {
+						isSubmitting = false;
+						submitButton.prop('disabled', false);
+						submitButton.html('Proceed to Checkout');
+					}, 5000);
+				}
+			}
+		});
+
+		// Khởi tạo hiển thị
+		updateTotalDisplay();
+	});
+</script>

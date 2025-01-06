@@ -1,0 +1,268 @@
+<%- include('../includes/head.ejs') %>
+<%- include('../admin/header-admin.ejs') %>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Chi tiết đơn hàng #<%= order._id %></h3>
+        <div>
+            <button type="button" class="btn btn-warning notify-btn" data-order-id="<%= order._id %>">
+                <i class="fas fa-envelope"></i> Gửi email thông báo
+            </button>
+            <a href="/adminTin/managerorder" class="btn btn-secondary ml-2">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Thông tin khách hàng -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-user"></i> Thông tin khách hàng</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Họ tên:</th>
+                            <td><%= order.fullname %></td>
+                        </tr>
+                        <tr>
+                            <th>Số điện thoại:</th>
+                            <td><%= order.mobile %></td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td><%= order.email || 'Không có' %></td>
+                        </tr>
+                        <tr>
+                            <th>Địa chỉ:</th>
+                            <td><%= order.address %></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Thông tin đơn hàng -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Thông tin đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Mã đơn hàng:</th>
+                            <td>#<%= order._id %></td>
+                        </tr>
+                        <tr>
+                            <th>Ngày đặt:</th>
+                            <td><%= order.createdOrder %></td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái:</th>
+                            <td>
+                                <form action="/adminTin/managerorder/status" method="POST" class="status-form">
+                                    <input type="hidden" name="orderId" value="<%= order._id %>">
+                                    <select name="status" class="form-control form-control-sm status-select">
+                                        <% const statusColors = {
+                                            'pending': 'warning',
+                                            'processing': 'info',
+                                            'shipped': 'primary',
+                                            'delivered': 'success',
+                                            'cancelled': 'danger'
+                                        } %>
+                                        <% ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].forEach(status => { %>
+                                            <option value="<%= status %>" 
+                                                    <%= order.status === status ? 'selected' : '' %>
+                                                    class="text-<%= statusColors[status] %>">
+                                                <%= status.charAt(0).toUpperCase() + status.slice(1) %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Tổng tiền:</th>
+                            <td class="h5 text-danger">
+                                <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount) %>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiết sản phẩm -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-shopping-cart"></i> Chi tiết sản phẩm</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Hình ảnh</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-center">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-right">Thành tiền</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.order.forEach(item => { %>
+                                    <tr>
+                                        <td style="width: 100px;">
+                                            <img src="<%= item.productId.imagePath %>" 
+                                                 class="img-thumbnail" 
+                                                 alt="<%= item.productname %>"
+                                                 style="max-width: 80px;">
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0"><%= item.productname %></h6>
+                                            <small class="text-muted">Mã SP: <%= item.productId %></small><br>
+                                            <% if (item.productId.category) { %>
+                                                <span class="badge badge-info"><%= item.productId.category %></span>
+                                            <% } %>
+                                        </td>
+                                        <td class="text-center">
+                                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price) %>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-primary"><%= item.quantity %></span>
+                                        </td>
+                                        <td class="text-right">
+                                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.sum) %>
+                                        </td>
+                                        <td>
+                                            <a href="/adminTin/managerproducts/<%= item.productId %>" 
+                                               class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-warning">
+                                    <td colspan="3"><strong>Tổng cộng:</strong></td>
+                                    <td class="text-center">
+                                        <strong><%= order.order.reduce((total, item) => total + item.quantity, 0) %></strong>
+                                    </td>
+                                    <td class="text-right" colspan="2">
+                                        <strong class="text-danger">
+                                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount) %>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline đơn hàng -->
+            <div class="card mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-history"></i> Lịch sử đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <% const statusList = ['pending', 'processing', 'shipped', 'delivered'];
+                           const currentStatusIndex = statusList.indexOf(order.status);
+                        %>
+                        <% statusList.forEach((status, index) => { %>
+                            <div class="timeline-item">
+                                <div class="timeline-badge <%= index <= currentStatusIndex ? 'bg-success' : 'bg-secondary' %>">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="<%= index <= currentStatusIndex ? 'text-success' : 'text-muted' %>">
+                                        <%= status.charAt(0).toUpperCase() + status.slice(1) %>
+                                    </h6>
+                                    <% if (index <= currentStatusIndex) { %>
+                                        <small class="text-muted">
+                                            <%= new Date().toLocaleDateString('vi-VN') %>
+                                        </small>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 20px;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    line-height: 30px;
+}
+
+.timeline-content {
+    padding: 10px;
+    border-left: 3px solid #e9ecef;
+    margin-left: 15px;
+}
+
+.status-select {
+    background-color: transparent;
+    border: 1px solid #ced4da;
+    padding: 2px 5px;
+    font-size: 0.875rem;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+</style>
+
+<script>
+// Cập nhật trạng thái tự động
+document.querySelector('.status-select').addEventListener('change', function() {
+    this.closest('form').submit();
+});
+
+// Gửi email thông báo
+document.querySelector('.notify-btn').addEventListener('click', async function() {
+    const orderId = this.dataset.orderId;
+    try {
+        const response = await fetch(`/adminTin/managerorder/${orderId}/notify`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Đã gửi email thông báo thành công!');
+        } else {
+            alert('Có lỗi xảy ra khi gửi email!');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Có lỗi xảy ra khi gửi email!');
+    }
+});
+</script>
+
+<%- include('../includes/end.ejs') %>

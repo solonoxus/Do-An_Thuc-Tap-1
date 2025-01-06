@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<%- include("../includes/head.ejs")%>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/admin-list.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Quản lý sản phẩm</h3>
+                        <div class="card-tools">
+                            <a href="/adminTin" class="btn btn-primary">
+                                <i class="fa fa-home"></i> Quay về Bảng điều khiển
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bodyList">
+                        <div class="p-b-10 p-t-50">
+                            <h3 class="ltext-103">
+                                <div style="display: flex; justify-content: center; align-items: center;">
+                                    <i class="fa fa-users" style="margin-right: 10px;"></i>
+                                    Quản lý sản phẩm
+                                </div>
+                            </h3>
+                        </div>
+
+                    <!-- Category Filter -->
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="mr-2">Lọc theo danh mục:</label>
+                            <div class="btn-group">
+                                <% categories.forEach(function(cat) { %>
+                                    <a href="/adminTin/managerproducts?category=<%= cat %>" 
+                                       class="btn btn-<%= currentCategory === cat ? 'primary' : 'secondary' %>">
+                                        <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+                                    </a>
+                                <% }); %>
+                            </div>
+                        </div>
+
+                        <!-- Products Table -->
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Hình ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% products.forEach(function(product) { %>
+                                    <tr>
+                                        <td>
+                                            <img src="<%= product.imagePath %>" alt="<%= product.productname %>" style="max-width: 50px;">
+                                        </td>
+                                        <td><%= product.productname %></td>
+                                        <td><%= product.category %></td>
+                                        <td><%= product.price %></td>
+                                        <td><%= product.quantity %></td>
+                                        <td>
+                                            <a href="/adminTin/managerproducts/update/<%= product._id %>" 
+                                               class="btn btn-warning btn-sm">
+                                                Sửa
+                                            </a>
+                                            <a href="/adminTin/managerproducts/delete/<%= product._id %>" 
+                                               class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                                Xóa
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to top -->
+    <div class="btn-back-to-top" id="myBtn">
+        <span class="symbol-btn-back-to-top">
+            <i class="zmdi zmdi-chevron-up"></i>
+        </span>
+    </div>
+</body>
+
+</html>

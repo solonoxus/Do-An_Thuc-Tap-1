@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<%- include("../includes/head.ejs")%>
+<%- include('../admin/admin-head.ejs') %>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/admin-list.css">
+    <title>Quản lý người dùng</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Quản Lý Người Dùng</h3>
+                        <div class="card-tools">
+                            <a href="/adminTin" class="btn btn-primary">
+                                <i class="fa fa-home"></i> Quay về Bảng điều khiển
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bodyList">
+                        <div class="p-b-10 p-t-50">
+                            <h3 class="ltext-103">
+                                <div style="display: flex; justify-content: center; align-items: center;">
+                                    <i class="fa fa-users" style="margin-right: 10px;"></i>
+                                    Quản lý người dùng
+                                </div>
+                            </h3>
+                        </div>
+
+                        <div class="product-status mg-tb-15">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="product-status-wrap">
+                                            <div class="table-wrapper">
+                                                <table class="list">
+                                                    <colgroup>
+                                                        <col style="width: 20%">
+                                                        <col style="width: 10%">
+                                                        <col style="width: 15%">
+                                                        <col style="width: 15%">
+                                                        <col style="width: 25%">
+                                                        <col style="width: 15%">
+                                                    </colgroup>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tên người dùng</th>
+                                                            <th>Tuổi</th>
+                                                            <th>Số điện thoại</th>
+                                                            <th>Vai trò</th>
+                                                            <th>Ngày tạo</th>
+                                                            <th>Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <% var i = 0 %>
+                                                    <form method="POST" action="/adminTin/managerusers/delete">
+                                                        <% listusers.forEach(function (user) { %>
+                                                        <tbody>
+                                                            <tr>
+                                                                <input type="hidden" value="<%= user._id %>" name="_id" id="_id">
+                                                                <td>
+                                                                    <div class="flex-c-m">
+                                                                        <%= user.username %>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="flex-c-m">
+                                                                        <%= user.age %>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="flex-c-m">
+                                                                        <%= user.phone %>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="flex-c-m">
+                                                                        <span class="role-badge <%= user.role === 'admin' ? 'role-admin' : 'role-customer' %>">
+                                                                            <%= user.role %>
+                                                                        </span>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="flex-c-m">
+                                                                        <%= user.created %>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="flex-c-m">
+                                                                        <a href="../adminTin/managerusers/update/<%= user._id %>"
+                                                                            data-toggle="tooltip" data-placement="top" title="Chỉnh sửa"
+                                                                            class="btn-edit">
+                                                                            <i class="fa fa-pencil-square-o"></i>
+                                                                        </a>
+                                                                        <a href="../adminTin/managerusers/delete/<%= user._id %>"
+                                                                            data-toggle="tooltip" data-placement="top" title="Xóa"
+                                                                            class="btn-delete">
+                                                                            <i class="fa fa-trash"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                        <% user.count = i %>
+                                                        <% user.count = user.count + 1 %>
+                                                        <% i = user.count %>
+                                                        <% }) %>
+                                                    </form>
+                                                </table>
+                                            </div>
+                                            <div class="Sum">
+                                                <i class="fa fa-users"></i> Tổng số người dùng: <strong><%= i %></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Back to top -->
+                        <div class="btn-back-to-top" id="myBtn">
+                            <span class="symbol-btn-back-to-top">
+                                <i class="zmdi zmdi-chevron-up"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

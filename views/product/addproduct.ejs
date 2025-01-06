@@ -1,0 +1,117 @@
+<%- include('../includes/head.ejs') %>
+<%- include('../admin/header-admin.ejs') %>
+
+<body class="animsition">
+    <section class="form-section">
+        <div class="container">
+            <div class="product-form-container">
+                <div class="form-header">
+                    <h2>
+                        <i class="fa fa-plus-circle"></i>
+                        Thêm sản phẩm mới
+                    </h2>
+                </div>
+
+                <% if (errorMessageProduct) { %>
+                <div class="message message--error">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <%= errorMessageProduct %>
+                </div>
+                <% } %>
+
+                <% if (successMessageProduct) { %>
+                <div class="message message--success">
+                    <i class="fa fa-check-circle"></i>
+                    <%= successMessageProduct %>
+                </div>
+                <% } %>
+
+                <form method="POST" action="/adminTin/addproduct">
+                    <div class="form-group">
+                        <label class="form-label">Tên sản phẩm</label>
+                        <input type="text" class="form-control" name="productname" id="productname" 
+                            placeholder="Nhập tên sản phẩm" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="imagePath" id="imagePath" 
+                            placeholder="Nhập đường dẫn hình ảnh" required
+                            onchange="previewImage(this.value)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mô tả sản phẩm</label>
+                        <textarea class="form-control" name="description" id="description" 
+                            placeholder="Nhập mô tả sản phẩm" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group-grid">
+                        <div class="form-group">
+                            <label class="form-label">Giá (VNĐ)</label>
+                            <input type="number" class="form-control" name="price" id="price" 
+                                placeholder="Nhập giá sản phẩm" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số lượng</label>
+                            <input type="number" class="form-control" name="quantity" id="quantity" 
+                                placeholder="Nhập số lượng" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Danh mục</label>
+                        <select id="menu-category" class="category-select" name="time" onchange="menucategory()">
+                            <option value="iphone">iPhone</option>
+                            <option value="macbook">MacBook</option>
+                            <option value="applewatch">Apple Watch</option>
+                            <option value="airpods">AirPods</option>
+                            <option value="other">Khác</option>
+                        </select>
+                        <input type="hidden" name="category" id="category" required readonly>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fa fa-plus-circle"></i>
+                        Thêm sản phẩm
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to top -->
+    <div class="btn-back-to-top" id="myBtn">
+        <span class="symbol-btn-back-to-top">
+            <i class="zmdi zmdi-chevron-up"></i>
+        </span>
+    </div>
+
+    <script>
+        function menucategory() {
+            var id = document.getElementById("menu-category");
+            var displaytext = id.options[id.selectedIndex].text;
+            document.getElementById("category").value = displaytext;
+        }
+
+        function previewImage(url) {
+            const preview = document.getElementById('imagePreview');
+            if (url) {
+                preview.style.backgroundImage = `url(${url})`;
+                preview.innerHTML = '';
+            } else {
+                preview.style.backgroundImage = 'none';
+                preview.innerHTML = '<i class="fa fa-image"></i>';
+            }
+        }
+
+        // Set initial category value
+        document.addEventListener('DOMContentLoaded', function() {
+            menucategory();
+        });
+    </script>
+
+    <%- include('../includes/footer.ejs') %>
+    <%- include('../includes/end.ejs') %>
+</body>
+</html>

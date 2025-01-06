@@ -1,0 +1,709 @@
+<%- include('../admin/admin-head.ejs') %>
+<%- include('../admin/header-admin.ejs') %>
+<body>
+</div>
+    <% var i =0 %>
+    <!-- Left Panel -->
+    <aside id="left-panel" class="left-panel">
+        <nav class="navbar navbar-expand-sm navbar-default">
+            <div id="main-menu" class="main-menu collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href="/adminTin"><i class="menu-icon fa fa-qrcode"></i>DASHBOARD</a>
+                    </li>
+                    <li class="menu-title">New product</li><!-- /.menu-title -->
+                    <li>
+                        <a href="/adminTin/addproduct"> <i class="menu-icon fa fa-plus-square-o"></i>Add Product </a>
+                    </li>
+
+                    <li class="menu-title">Manager</li>
+                    <li>
+                        <a href="/adminTin/managerusers"> <i class="menu-icon fa fa-users"></i>Manager Users </a>
+                    </li>
+
+                    <li>
+                        <a href="/adminTin/managerproducts"> <i class="menu-icon fa fa-truck"></i>Manager All Products </a>
+                    </li>
+
+                    
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </nav>
+    </aside>
+    <!-- /#left-panel -->
+    <!-- Right Panel -->
+    <div id="right-panel" class="right-panel">
+        <!-- Header-->
+        <header id="header" class="header">
+            <div class="top-left">
+                <div class="navbar-header">
+                    <a href="./" id="menuToggle" class="menutoggle"><img src="images/home.png" alt="Logo"></a>
+                </div>
+            </div>
+            <div class="top-right">
+                <div class="header-menu">
+                    <div class="header-left">
+                        <button class="search-trigger"><i class="fa fa-search"></i></button>
+                        <div class="form-inline">
+                            <form class="search-form">
+                                <input class="form-control mr-sm-2" type="text" placeholder="Search ..." aria-label="Search">
+                                <button class="search-close" type="submit"><i class="fa fa-close"></i></button>
+                            </form>
+                        </div>
+
+                        <div class="dropdown for-notification">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="notification" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bell"></i>
+                                <span class="count bg-danger">3</span>
+                            </button>
+                          
+                        </div>
+
+                        <div class="dropdown for-message">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="message" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-envelope"></i>
+                                <span class="count bg-primary">4</span>
+                            </button>
+                         
+                        </div>
+                    </div>
+
+                    <div class="user-area dropdown float-right">
+                        <a href="#" class="dropdown-toggle active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="user-avatar rounded-circle" src="/images/team1.jpg" alt="User Avatar">
+                        </a>
+
+                        <div class="user-menu dropdown-menu">
+                            <a class="nav-link" href="#"><i class="fa fa- user"></i>My Profile</a>
+
+         
+                            <a class="nav-link" href="#"><i class="fa fa -cog"></i>Settings</a>
+
+                            <a class="nav-link" href="#"><i class="fa fa-power -off"></i>Logout</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+        <!-- /#header -->
+        <!-- Content -->
+        <div class="content">
+            <!-- Animated -->
+            <% var totalRevenue = 0 %>
+            <% orders.forEach(function(order) { %>
+                <% totalRevenue += order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) %>
+            <% }) %>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="box-title">Thống kê đơn hàng</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="card-body">
+                                    <div class="progress-box progress-1">
+                                        <h4 class="por-title">Tổng doanh thu</h4>
+                                        <div class="por-txt">
+                                            <%= new Intl.NumberFormat('en-US', { 
+                                                style: 'currency', 
+                                                currency: 'USD' 
+                                            }).format(totalRevenue) %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="card-body">
+                                    <div class="progress-box progress-2">
+                                        <h4 class="por-title">Số đơn hàng</h4>
+                                        <div class="por-txt"><%= orders.length %></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="card-body">
+                                    <div class="progress-box progress-2">
+                                        <h4 class="por-title">Đơn hàng hoàn thành</h4>
+                                        <div class="por-txt"><%= orders.filter(order => order.status === 'completed').length %></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders -->
+            <div class="orders">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 class="box-title mb-0">Quản Lý Đơn Hàng</h4>
+                                    <div class="d-flex gap-2">
+                                        <div class="search-box">
+                                            <input type="text" id="orderSearch" class="form-control" placeholder="Tìm kiếm đơn hàng...">
+                                        </div>
+                                        <select id="statusFilter" class="form-control">
+                                            <option value="">Tất cả trạng thái</option>
+                                            <option value="pending">Đang chờ</option>
+                                            <option value="processing">Đang xử lý</option>
+                                            <option value="completed">Hoàn thành</option>
+                                            <option value="cancelled">Đã hủy</option>
+                                        </select>
+                                        <button class="btn btn-success" onclick="exportToExcel()">
+                                            <i class="fa fa-file-excel-o"></i> Xuất Excel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body--">
+                                <div class="table-stats order-table">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="sortable" onclick="sortTable(0)">ID <i class="fa fa-sort"></i></th>
+                                                <th class="sortable" onclick="sortTable(1)">Khách hàng <i class="fa fa-sort"></i></th>
+                                                <th>Số điện thoại</th>
+                                                <th>Địa chỉ</th>
+                                                <th class="sortable" onclick="sortTable(4)">Ngày đặt <i class="fa fa-sort"></i></th>
+                                                <th class="sortable" onclick="sortTable(5)">Trạng thái <i class="fa fa-sort"></i></th>
+                                                <th class="sortable" onclick="sortTable(6)">Tổng tiền <i class="fa fa-sort"></i></th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="orderTableBody">
+                                            <% orders.forEach(function(order) { %>
+                                            <tr class="order-row" data-order-id="<%= order._id %>" data-status="<%= order.status %>">
+                                                <td><%= order.orderId %></td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://ui-avatars.com/api/?name=<%= order.fullname %>&background=random" 
+                                                             class="rounded-circle mr-2" style="width: 30px; height: 30px;">
+                                                        <span><%= order.fullname %></span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="tel:<%= order.mobilenumber %>" class="text-primary">
+                                                        <i class="fa fa-phone"></i> <%= order.mobilenumber %>
+                                                    </a>
+                                                </td>
+                                                <td><%= order.address %></td>
+                                                <td>
+                                                    <%= new Date(order.createdAt).toLocaleDateString('vi-VN', { 
+                                                        day: '2-digit', 
+                                                        month: '2-digit', 
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    }) %>
+                                                </td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm dropdown-toggle 
+                                                            <% if (order.status === 'pending') { %>btn-warning<% } %>
+                                                            <% if (order.status === 'processing') { %>btn-info<% } %>
+                                                            <% if (order.status === 'completed') { %>btn-success<% } %>
+                                                            <% if (order.status === 'cancelled') { %>btn-danger<% } %>" 
+                                                            type="button" 
+                                                            id="dropdownStatus_<%= order._id %>" 
+                                                            data-toggle="dropdown" 
+                                                            aria-haspopup="true" 
+                                                            aria-expanded="false">
+                                                            <% 
+                                                            switch(order.status) {
+                                                                case 'pending': 
+                                                                    %>Đang chờ<%
+                                                                    break;
+                                                                case 'processing': 
+                                                                    %>Đang xử lý<%
+                                                                    break;
+                                                                case 'completed': 
+                                                                    %>Hoàn thành<%
+                                                                    break;
+                                                                case 'cancelled': 
+                                                                    %>Đã hủy<%
+                                                                    break;
+                                                                default: 
+                                                                    %>Trạng thái<%
+                                                            }
+                                                            %>
+                                                        </button>
+                                                        <div class="dropdown-menu" aria-labelledby="dropdownStatus_<%= order._id %>">
+                                                            <% const statusOptions = ['pending', 'processing', 'completed', 'cancelled']; %>
+                                                            <% statusOptions.forEach(function(status) { %>
+                                                                <% if (status !== order.status) { %>
+                                                                    <a class="dropdown-item" href="#" onclick="updateStatus('<%= order._id %>', '<%= status %>')">
+                                                                        <% 
+                                                                        switch(status) {
+                                                                            case 'pending': 
+                                                                                %>Đang chờ<%
+                                                                                break;
+                                                                            case 'processing': 
+                                                                                %>Đang xử lý<%
+                                                                                break;
+                                                                            case 'completed': 
+                                                                                %>Hoàn thành<%
+                                                                                break;
+                                                                            case 'cancelled': 
+                                                                                %>Đã hủy<%
+                                                                                break;
+                                                                        }
+                                                                        %>
+                                                                    </a>
+                                                                <% } %>
+                                                            <% }); %>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="price-amount">
+                                                        <%= new Intl.NumberFormat('en-US', { 
+                                                            style: 'currency', 
+                                                            currency: 'USD' 
+                                                        }).format(order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)) %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <button class="btn btn-sm btn-info" onclick="viewOrderDetails('<%= order._id %>')">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger" onclick="confirmDeleteOrder('<%= order._id %>')">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="text-muted">
+                                            Hiển có <span id="currentRecords"></span> / <span id="totalRecords"></span> đơn hàng
+                                        </div>
+                                        <nav>
+                                            <!-- Pagination will be added here if needed -->
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSS bổ sung -->
+            <style>
+                .search-box {
+                    position: relative;
+                    margin-right: 10px;
+                }
+                .search-box input {
+                    padding-right: 30px;
+                }
+                .search-box::after {
+                    content: '\f002';
+                    font-family: 'FontAwesome';
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #666;
+                }
+                .status-btn {
+                    font-size: 12px;
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                }
+                .status-pending {
+                    background-color: #ffc107;
+                    color: #000;
+                }
+                .status-processing {
+                    background-color: #17a2b8;
+                    color: #fff;
+                }
+                .status-completed {
+                    background-color: #28a745;
+                    color: #fff;
+                }
+                .status-cancelled {
+                    background-color: #dc3545;
+                    color: #fff;
+                }
+                .price-amount {
+                    font-weight: bold;
+                    color: #28a745;
+                }
+                .sortable {
+                    cursor: pointer;
+                }
+                .sortable:hover {
+                    background-color: #f8f9fa;
+                }
+                .btn-group .btn {
+                    margin: 0 2px;
+                }
+                .table-hover tbody tr:hover {
+                    background-color: rgba(0,0,0,.075);
+                }
+            </style>
+
+            <!-- JavaScript bổ sung -->
+            <script>
+                // Tìm kiếm đơn hàng
+                document.getElementById('orderSearch').addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('.order-row');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                    updateRecordCount();
+                });
+
+                // Lọc theo trạng thái
+                document.getElementById('statusFilter').addEventListener('change', function(e) {
+                    const status = e.target.value;
+                    const rows = document.querySelectorAll('.order-row');
+                    
+                    rows.forEach(row => {
+                        if (!status || row.dataset.status === status) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                    updateRecordCount();
+                });
+
+                function updateStatus(orderId, status) {
+                    Swal.fire({
+                        title: 'Xác nhận cập nhật trạng thái',
+                        text: `Bạn có chắc muốn chuyển trạng thái đơn hàng sang "${getStatusText(status)}"?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('/adminTin/managerorder/status', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({ orderId, status })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Reload the page to reflect the latest status
+                                Swal.fire({
+                                    title: 'Cập nhật thành công!',
+                                    text: 'Trạng thái đơn hàng đã được cập nhật.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Lỗi!',
+                                    text: 'Không thể cập nhật trạng thái đơn hàng',
+                                    icon: 'error'
+                                });
+                            });
+                        }
+                    });
+                }
+
+                function getStatusText(status) {
+                    switch(status) {
+                        case 'pending': return 'Đang chờ';
+                        case 'processing': return 'Đang xử lý';
+                        case 'completed': return 'Hoàn thành';
+                        case 'cancelled': return 'Đã hủy';
+                        default: return status;
+                    }
+                }
+
+                function showNotification(message, type = 'info') {
+                    const notification = document.createElement('div');
+                    notification.className = `alert alert-${type} fixed-top text-center`;
+                    notification.textContent = message;
+                    document.body.appendChild(notification);
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 3000);
+                }
+
+                // Gửi thông báo
+                function sendNotification(orderId) {
+                    fetch(`/adminTin/managerorder/${orderId}/notify`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Đã gửi thông báo thành công!');
+                        }
+                    });
+                }
+
+                // Xuất Excel
+                function exportToExcel() {
+                    window.location.href = '/adminTin/managerorder/export';
+                }
+
+                // In đơn hàng
+                function printOrder(orderId) {
+                    window.open(`/adminTin/managerorder/${orderId}/print`, '_blank');
+                }
+
+                // Sắp xếp bảng
+                function sortTable(n) {
+                    // Implementation of table sorting
+                }
+
+                // Cập nhật số lượng bản ghi
+                function updateRecordCount() {
+                    const totalRows = document.querySelectorAll('.order-row');
+                    const currentRecordsSpan = document.getElementById('currentRecords');
+                    const totalRecordsSpan = document.getElementById('totalRecords');
+                    
+                    if (currentRecordsSpan && totalRecordsSpan) {
+                        currentRecordsSpan.textContent = totalRows.length;
+                        totalRecordsSpan.textContent = totalRows.length;
+                    }
+                }
+
+                // Khởi tạo
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Đảm bảo số lượng bản ghi được cập nhật khi trang tải
+                    updateRecordCount();
+                });
+
+                // Phân trang
+                let currentPage = 1;
+                const rowsPerPage = 10;
+
+                function showPage(page) {
+                    const rows = document.querySelectorAll('.order-row');
+                    const start = (page - 1) * rowsPerPage;
+                    const end = start + rowsPerPage;
+
+                    rows.forEach((row, index) => {
+                        row.style.display = (index >= start && index < end) ? '' : 'none';
+                    });
+                    updateRecordCount();
+                }
+
+                function previousPage() {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                    }
+                }
+
+                function nextPage() {
+                    const rows = document.querySelectorAll('.order-row');
+                    if (currentPage * rowsPerPage < rows.length) {
+                        currentPage++;
+                        showPage(currentPage);
+                    }
+                }
+
+                // Xóa đơn hàng
+                function confirmDeleteOrder(orderId) {
+                    Swal.fire({
+                        title: 'Xác nhận xóa đơn hàng',
+                        text: 'Bạn có chắc chắn muốn xóa đơn hàng này? Hành động này không thể hoàn tác.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/adminTin/managerorder/delete/${orderId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: 'Đã xóa!',
+                                        text: 'Đơn hàng đã được xóa thành công.',
+                                        icon: 'success'
+                                    }).then(() => {
+                                        // Remove the row from the table without reloading
+                                        const orderRow = document.querySelector(`tr[data-order-id="${orderId}"]`);
+                                        if (orderRow) {
+                                            orderRow.remove();
+                                        }
+                                        updateRecordCount();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Lỗi!',
+                                        text: data.message || 'Không thể xóa đơn hàng',
+                                        icon: 'error'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Lỗi!',
+                                    text: 'Đã có lỗi xảy ra khi xóa đơn hàng',
+                                    icon: 'error'
+                                });
+                            });
+                        }
+                    });
+                }
+            </script>
+            <!-- To Do and Live Chat -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                    </div><!-- /.card -->
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card">
+                    </div><!-- /.card -->
+                </div>
+            </div>
+        
+    <!-- /.content -->
+    <div class="clearfix"></div>
+    <!-- Footer -->
+     
+    <!-- /.site-footer -->
+</div>
+<!-- /#right-panel -->
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-match-height@0.7.2/dist/jquery.matchHeight.min.js"></script>
+  
+
+<!--  Chart js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!--Chartist Chart-->
+<script src="https://cdn.jsdelivr.net/npm/chartist@0.11.0/dist/chartist.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery.flot@0.8.3/jquery.flot.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flot-pie@1.0.0/src/jquery.flot.pie.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flot-spline@0.0.1/js/jquery.flot.spline.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/simpleweather@3.1.0/jquery.simpleWeather.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.js"></script>
+
+<script>
+jQuery(document).ready(function($) {
+    "use strict";
+
+    // Safe chart initialization with error handling
+    function initializeFlotChart(selector, data, options) {
+        try {
+            const $chartElement = $(selector);
+            if ($chartElement.length) {
+                $.plot($chartElement, data, options);
+            } else {
+                console.warn(`Chart element ${selector} not found`);
+            }
+        } catch (error) {
+            console.error(`Error initializing chart ${selector}:`, error);
+        }
+    }
+
+    // Pie chart flotPie1
+    const piedata = [
+        { label: "Desktop visits", data: [[1,32]], color: '#5c6bc0'},
+        { label: "Tab visits", data: [[1,33]], color: '#ef5350'},
+        { label: "Mobile visits", data: [[1,35]], color: '#66bb6a'}
+    ];
+
+    initializeFlotChart('#flotPie1', piedata, {
+        series: {
+            pie: {
+                show: true,
+                radius: 1,
+                innerRadius: 0.65,
+                label: {
+                    show: true,
+                    radius: 2/3,
+                    threshold: 1
+                },
+                stroke: {
+                    width: 0
+                }
+            }
+        },
+        grid: {
+            hoverable: true,
+            clickable: true
+        }
+    });
+
+    // cellPaiChart
+    const cellPaiChart = [
+        { label: "Direct Sell", data: [[1,65]], color: '#5b83de'},
+        { label: "Channel Sell", data: [[1,35]], color: '#00bfa5'}
+    ];
+
+    initializeFlotChart('#cellPaiChart', cellPaiChart, {
+        series: {
+            pie: {
+                show: true,
+                stroke: {
+                    width: 0
+                }
+            }
+        },
+        legend: {
+            show: false
+        },
+        grid: {
+            hoverable: true,
+            clickable: true
+        }
+    });
+});
+</script>
+   
+</body>
+</html>
