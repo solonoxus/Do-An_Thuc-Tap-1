@@ -36,28 +36,36 @@ $(document).ready(function() {
 
     // Function to remove product from cart
     window.removeFromCart = function(productId) {
+        console.log('Attempting to remove product:', productId);
         $.ajax({
-            url: '/removecartproduct',
+            url: '/cart/delete-item',
             method: 'POST',
-            data: { productId: productId },
+            data: JSON.stringify({ productId: productId }),
+            dataType: 'json',
+            contentType: 'application/json',
             success: function(response) {
+                console.log('Remove product response:', response);
                 if (response.success) {
-                    // Xóa dòng sản phẩm khỏi bảng
+                    // Xóa ngay lập tức dòng sản phẩm khỏi giao diện
                     $(`tr[data-product-id="${productId}"]`).remove();
                     
-                    // Kiểm tra nếu không còn sản phẩm nào
+                    // Kiểm tra và cập nhật giao diện nếu giỏ hàng trống
                     if ($('.table_row').length === 0) {
                         $('.wrap-table-shopping-cart').html(
-                            '<div class="empty-cart-message">Giỏ hàng trống</div>'
+                            '<div class="empty-cart-message text-center">Giỏ hàng của bạn hiện đang trống</div>'
                         );
                     }
                     
                     // Cập nhật tổng tiền
                     updateTotalPrice();
+                } else {
+                    console.error('Không thể xóa sản phẩm:', response.error);
+                    alert(response.error || 'Không thể xóa sản phẩm khỏi giỏ hàng');
                 }
             },
-            error: function(error) {
-                console.error('Error removing product:', error);
+            error: function(xhr, status, error) {
+                console.error('Lỗi khi xóa sản phẩm:', xhr.responseText, status, error);
+                alert('Đã xảy ra lỗi khi xóa sản phẩm');
             }
         });
     };

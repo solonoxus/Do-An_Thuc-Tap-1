@@ -279,7 +279,7 @@
 
 								<% if (products && products.length > 0) { %>
 									<% products.forEach(function(product) { %>
-										<tr class="table_row">
+										<tr class="table_row" data-product-id="<%= product.productId._id %>">
 											<td class="checkbox-column">
 												<input type="checkbox" class="product-checkbox" 
 													value="<%= product.productId._id %>"
@@ -314,7 +314,10 @@
 												<% } %>
 											</td>
 											<td class="column-5">
-												$<span class="total-prod"><%= (product.productId.price * product.quantity).toFixed(2) %></span>
+												<button class="btn btn-danger btn-sm remove-cart-item" onclick="removeFromCart('<%= product.productId._id %>')">
+													<i class="zmdi zmdi-delete"></i> Xóa
+												</button>
+												<div class="total-prod" id="total-<%= product.productId._id %>">$<%= (product.productId.price * product.quantity).toFixed(2) %></div>
 											</td>
 										</tr>
 									<% }); %>

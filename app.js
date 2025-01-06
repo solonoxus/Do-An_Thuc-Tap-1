@@ -20,6 +20,7 @@ const routesUser = require('./routes/users')
 const routesAdmin = require('./routes/admin')
 const routesProduct = require('./routes/product')
 const routesVnpay = require('./routes/vnpay')
+const routesCart = require('./routes/cart')
 const UserModel = require('./models/user')
 
 
@@ -54,18 +55,9 @@ app.use((req, res, next) => {
   }
 
   if (req.session.user) {
-    UserModel.findById(req.session.user._id)
-      .then(user => {
-        if (!user) {
-          return next();
-        }
-        req.user = user;
-        next();
-      })
-      .catch(err => {
-        console.log(err);
-        next();
-      });
+    // Trực tiếp gán req.user từ session.user thay vì truy vấn database
+    req.user = req.session.user;
+    next();
   } else {
     next();
   }
@@ -96,10 +88,15 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use((req, res, next) => {  
+  // Đảm bảo session luôn được khởi tạo
+  if (!req.session) {
+    req.session = {};
+  }
+  
   // gui ve 1 bien trong moi 1 route
-  res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.Manager = req.session.isManager;
-  res.locals.currentUser = req.session.user;
+  res.locals.isAuthenticated = req.session.isLoggedIn || false;
+  res.locals.Manager = req.session.isManager || false;
+  res.locals.currentUser = req.session.user || null;
   res.locals.session = req.session;
   next();
 });
@@ -111,6 +108,7 @@ app.use('/', routesUser);
 app.use('/', routesProduct);
 app.use('/', routesAdmin);
 app.use('/', routesVnpay);
+app.use('/', routesCart);
 
 // view engine setup
 app.set('view engine', 'ejs');
